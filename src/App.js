@@ -1,43 +1,50 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
-const initialItems = [
-  { id: 1, description: "Pasport", quantity: 2, packed: false },
-  { id: 2, description: "dfg", quantity: 21, packed: true },
-  { id: 31, description: "sd", quantity: 21, packed: true },
-];
 const App = () => {
+  const [items, setItems] = useState([]);
+
+  const addNewItem = (newItem) => {
+    setItems((currentState) => [...currentState, newItem]);
+  };
+
   return (
     <div className="app">
       <Logo />
-      <Form />
-      <List />
+      <Form onAddItems={addNewItem} />
+      <List items={items} />
       <Stats />
     </div>
   );
 };
 
-const Logo = () => {
+const Logo = ({ items }) => {
   return <h1>🌴Far Away💼</h1>;
 };
-const Form = () => {
+const Form = ({ onAddItems }) => {
+  const inputRef = useRef();
   const [input, setInput] = useState("");
   const [quantity, setQuantity] = useState(1);
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (!input) return;
 
-    const newItem = {
+    onAddItems({
       description: input,
       quantity,
       packed: false,
       id: Date.now(),
-    };
+    });
 
     setInput("");
     setQuantity(1);
   };
 
+  useEffect(() => {
+    const inputArea = inputRef.current;
+    inputArea.focus();
+  }, []);
   const handleChange = (e) => {
     setInput(e.target.value);
   };
@@ -55,6 +62,7 @@ const Form = () => {
         ))}
       </select>
       <input
+        ref={inputRef}
         type="text"
         placeholder="Item..."
         value={input}
@@ -64,11 +72,11 @@ const Form = () => {
     </form>
   );
 };
-const List = () => {
+const List = ({ items }) => {
   return (
     <div className="list">
       <ul>
-        {initialItems.map((item) => (
+        {items.map((item) => (
           <Item item={item} key={item.id} />
         ))}
       </ul>
